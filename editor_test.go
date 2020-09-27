@@ -3,6 +3,7 @@ package editor_test
 import (
 	"bufio"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -25,6 +26,9 @@ type TextEditor interface {
 	// if it does not appear in /usr/share/dict/words or any other dictionary (of comparable size)
 	// that you choose.
 	Misspellings() int
+	// Get the start and end indices of all of the the given keyWord's occurrences in the document
+	// Returns an empty slice if no occurrences of the key are found in the document
+	Search(key string) [][]int
 }
 
 type SimpleEditor struct {
@@ -74,6 +78,12 @@ func (s *SimpleEditor) Misspellings() int {
 	return result
 }
 
+func (s *SimpleEditor) Search(key string) [][]int {
+	searchKey := regexp.MustCompile(key)
+	doc := string(s.document)
+	return searchKey.FindAllStringIndex(doc, -1)
+}
+
 func BenchmarkClipboard(b *testing.B) {
 	cases := []struct {
 		data string
@@ -112,6 +122,12 @@ func BenchmarkClipboard(b *testing.B) {
 		b.Run("Misspellings"+strconv.Itoa(len(tc.data)), func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
 				_ = s.Misspellings()
+			}
+		})
+		s = NewSimpleEditor(tc.data)
+		b.Run("Search"+strconv.Itoa(len(tc.data)), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				_ = s.Search("Neeva")
 			}
 		})
 	}
