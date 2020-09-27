@@ -33,6 +33,7 @@ PASS
 ok      command-line-arguments  19.199s
 
 A search operation is added to the existing operations of the editor.
+This operation returns the start and end indices of all the given search query's occurrences in the document.
 The search operation is faster on strings as compared to bytes which is why the document is converted to a string before searching for occurrences. 
 
 
