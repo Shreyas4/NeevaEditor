@@ -28,9 +28,9 @@ type TextEditor interface {
 }
 
 type SimpleEditor struct {
-	document   string
+	document   []byte
 	dictionary map[string]bool
-	pasteText  string
+	pasteText  []byte
 }
 
 func NewSimpleEditor(document string) TextEditor {
@@ -43,12 +43,12 @@ func NewSimpleEditor(document string) TextEditor {
 	for scanner.Scan() {
 		dict[scanner.Text()] = true
 	}
-	return &SimpleEditor{document: document, dictionary: dict}
+	return &SimpleEditor{document: []byte(document), dictionary: dict}
 }
 
 func (s *SimpleEditor) Cut(i, j int) {
 	s.pasteText = s.document[i:j]
-	s.document = s.document[:i] + s.document[j:]
+	s.document = append(s.document[:i], s.document[j:]...)
 }
 
 func (s *SimpleEditor) Copy(i, j int) {
@@ -56,16 +56,17 @@ func (s *SimpleEditor) Copy(i, j int) {
 }
 
 func (s *SimpleEditor) Paste(i int) {
-	s.document = s.document[:i] + s.pasteText + s.document[i:]
+	s.document = append(append(s.document[:i], s.pasteText...), s.document[i:]...)
 }
 
 func (s *SimpleEditor) GetText() string {
-	return s.document
+	return string(s.document)
 }
 
 func (s *SimpleEditor) Misspellings() int {
 	result := 0
-	for _, word := range strings.Fields(s.document) {
+	doc := string(s.document)
+	for _, word := range strings.Fields(doc) {
 		if !s.dictionary[word] {
 			result++
 		}
