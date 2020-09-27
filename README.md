@@ -54,3 +54,8 @@ ok      command-line-arguments  22.176s
 
 
 The above changes to the basic data structure were done because strings are faster for searches (contains, index, compare) whereas bytes are faster in creation operations (replace, concat)
+
+
+To run the program:
+execute the following command
+go test -bench=. editor_test.go
